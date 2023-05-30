@@ -79,7 +79,17 @@ for index in index_list:
     category_matches = (
         str(re.findall(category_pattern, text))[1:-1].replace("'", "").split(" ")
     )
-    category = category_matches[0]
+    if len(category_matches) == 1:
+        category_pattern2 = r"(\d{1}\. NAVIGATION PROHIBITED \w+ )"
+        category_matches2 = (
+            str(re.findall(category_pattern2, text))[1:-1].replace("'", "").split(" ")
+        )
+        try:
+            category = f"{category_matches2[1]} {category_matches2[2]}"
+        except:
+            category = f"{category_matches2[0]}"
+    else:
+        category = category_matches[0]
 
     # Extract the time start and end and category
     time_pattern = r"(\d{4}Z TO \d{4}Z)"
