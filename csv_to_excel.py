@@ -60,19 +60,27 @@ for index in index_list:
         matches = re.findall(pattern, text)
         return str(matches)[1:-1].replace("'", "").replace(" THRU ", " ").split(" ")
 
+    effective_start = ""
+    effective_end = ""
     # Effective Start, Effective End columns - Pattern 1
     effective_pattern1 = r"(\d{2} THRU \d{2} \w+)"
     matches1 = extract_data(effective_pattern1)
-    if len(matches1) != 1:
-        effective_start = f"{matches1[0]}-{matches1[-1]}"
-        effective_end = f"{matches1[-2]}-{matches1[-1]}"
+    try:
+        if len(matches1) != 1:
+            effective_start = f"{matches1[0]}-{matches1[-1]}"
+            effective_end = f"{matches1[-2]}-{matches1[-1]}"
+    except:
+        pass
 
     # Effective Start, Effective End columns - Pattern 2
     effective_pattern2 = r"(\d{2} \w+ THRU \d{2} \w+)"
     matches2 = extract_data(effective_pattern2)
-    if len(matches2) != 1:
-        effective_start = f"{matches2[0]}-{matches2[1]}"
-        effective_end = f"{matches2[-2]}-{matches2[-1]}"
+    try:
+        if len(matches1) != 1:
+            effective_start = f"{matches2[0]}-{matches2[1]}"
+            effective_end = f"{matches2[-2]}-{matches2[-1]}"
+    except:
+        pass
 
     # Category column
     category_pattern = r"(\w+ \d{2} THRU|\w+ \d{2} \w+ THRU)"
@@ -141,7 +149,6 @@ for index in index_list:
                 rows.append(row)
 
     # create dict for data
-
     if area != "":
         row = {
             "Authority": authority,
