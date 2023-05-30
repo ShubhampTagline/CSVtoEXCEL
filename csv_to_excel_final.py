@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 import re
 
 # Show all Column and Row
@@ -7,7 +8,7 @@ pd.set_option("display.max_columns", 150)
 pd.set_option("display.max_colwidth", None)
 
 # Import CSV file
-csv_file = pd.read_csv("/Users/tl/Documents/subhash_csv/file1.csv")
+csv_file = pd.read_csv("/Users/tl/Documents/subhash_csv/file2.csv")
 
 # Filter data with specific words
 filtered_csv = csv_file[
@@ -27,7 +28,7 @@ for index in index_list:
     if "IN AREAS BOUND BY:" in text:
         cd_pattern = r"IN AREAS BOUND BY:([\s\S]*?)2\. \w+"
         cd_matches = re.findall(cd_pattern, text)
-        cd_matches_str = str(cd_matches)[1:-1].replace(" ", "").replace("\n", "")
+        cd_matches_str = str(cd_matches)[1:-1].replace(" ", "").replace("n", "")
         pattern = r"[A-z]\.\d{2}"
         characters = re.findall(pattern, cd_matches_str)
 
@@ -63,29 +64,26 @@ for index in index_list:
     effective_pattern1 = r"(\d{2} THRU \d{2} \w+)"
     matches1 = extract_data(effective_pattern1)
     if len(matches1) != 1:
-        effective_start = matches1[0] + " " + matches1[-1]
-        effective_end = matches1[-2] + " " + matches1[-1]
+        effective_start = f"{matches1[0]}-{matches1[-1]}"
+        effective_end = f"{matches1[-2]}-{matches1[-1]}"
 
     # Effective Start, Effective End columns - Pattern 2
     effective_pattern2 = r"(\d{2} \w+ THRU \d{2} \w+)"
     matches2 = extract_data(effective_pattern2)
     if len(matches2) != 1:
-        effective_start = matches2[0] + " " + matches2[1]
-        effective_end = matches2[-2] + " " + matches2[-1]
-
-    # Function for extracting data from text field
-    def category_and_time_data(pattern):
-        matches = re.findall(pattern, text)
-        return str(matches)[1:-1].replace("'", "").split(" ")
+        effective_start = f"{matches2[0]}-{matches2[1]}"
+        effective_end = f"{matches2[-2]}-{matches2[-1]}"
 
     # Category column
     category_pattern = r"(\w+ \d{2} THRU|\w+ \d{2} \w+ THRU)"
-    category_matches = category_and_time_data(category_pattern)
+    category_matches = (
+        str(re.findall(category_pattern, text))[1:-1].replace("'", "").split(" ")
+    )
     category = category_matches[0]
 
     # Extract the time start and end and category
     time_pattern = r"(\d{4}Z TO \d{4}Z)"
-    time_matches = category_and_time_data(time_pattern)
+    time_matches = str(re.findall(time_pattern, text))[1:-1].replace("'", "").split(" ")
     time_start = time_matches[0]
     time_end = time_matches[-1]
 
@@ -157,6 +155,7 @@ for index in index_list:
 
 
 df = pd.DataFrame(rows)
-writer = pd.ExcelWriter("data.xlsx", engine="xlsxwriter")
+current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+writer = pd.ExcelWriter(f"data{current_time}.xlsx", engine="xlsxwriter")
 df.to_excel(writer, sheet_name="Sheet1", index=False)
 writer.close()
