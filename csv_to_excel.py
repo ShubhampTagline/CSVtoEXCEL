@@ -2,23 +2,23 @@ import pandas as pd
 import datetime
 import re
 
-# Show all Column and Row
-pd.set_option("display.max_rows", 1500)
-pd.set_option("display.max_columns", 150)
-pd.set_option("display.max_colwidth", None)
-
 # Import CSV file
-csv_file = pd.read_csv("/Users/tl/Documents/subhash_csv/file2.csv")
+print("Enter CSV path:", end="")
+csv_path = input()
+if not csv_path:
+    csv_path = "input/file1.csv"
+csv_file = pd.read_csv(csv_path)
 
 # Filter data with specific words
 filtered_csv = csv_file[
     (csv_file["text"].str.contains("ROCKET|SPACE|LAUNCH|LAUNCHING"))
     | (csv_file["authority"].str.contains("SPACE|LAUNCH|DELTA"))
 ]
+
 index_list = filtered_csv.index.tolist()
 
-
 rows = []
+
 for index in index_list:
     cd_dict = {}
     cd_data_dict = {}
@@ -45,13 +45,15 @@ for index in index_list:
             ]
             cd_data_dict[character[0]] = cd_matches_list
         area = ""
+
     else:
+        area = "A"
         cd_pattern = r"IN AREA BOUND BY([\s\S]*?)2\. \w+"
         cd_matches = re.findall(cd_pattern, text)
         cd_matches_list = [
             x.strip() for x in cd_matches[0].split("\n") if x.strip() != ""
         ]
-        area = "A"
+
         for i, cd_matches in enumerate(cd_matches_list):
             cd_dict["Cd" + str(i + 1)] = cd_matches
 
@@ -62,9 +64,11 @@ for index in index_list:
 
     effective_start = ""
     effective_end = ""
+
     # Effective Start, Effective End columns - Pattern 1
     effective_pattern1 = r"(\d{2} THRU \d{2} \w+)"
     matches1 = extract_data(effective_pattern1)
+
     try:
         if len(matches1) != 1:
             effective_start = f"{matches1[0]}-{matches1[-1]}"
@@ -75,6 +79,7 @@ for index in index_list:
     # Effective Start, Effective End columns - Pattern 2
     effective_pattern2 = r"(\d{2} \w+ THRU \d{2} \w+)"
     matches2 = extract_data(effective_pattern2)
+
     try:
         if len(matches1) != 1:
             effective_start = f"{matches2[0]}-{matches2[1]}"
@@ -87,6 +92,7 @@ for index in index_list:
     category_matches = (
         str(re.findall(category_pattern, text))[1:-1].replace("'", "").split(" ")
     )
+
     if len(category_matches) == 1:
         category_pattern2 = r"(\d{1}\. NAVIGATION PROHIBITED \w+ )"
         category_matches2 = (
@@ -96,6 +102,7 @@ for index in index_list:
             category = f"{category_matches2[1]} {category_matches2[2]}"
         except:
             category = f"{category_matches2[0]}"
+
     else:
         category = category_matches[0]
 
@@ -132,6 +139,7 @@ for index in index_list:
             row["Area"] = area
             row.update(cd_dict)
             rows.append(row)
+
         else:
             for key, value in cd_data_dict.items():
                 row = {
@@ -142,6 +150,7 @@ for index in index_list:
                     "Time Start": alternate_time_start,
                     "Time End": alternate_time_end,
                 }
+
                 for i, cd_matches in enumerate(value):
                     cd_dict["Cd" + str(i + 1)] = cd_matches
                 row["Area"] = key
@@ -161,6 +170,7 @@ for index in index_list:
         row["Area"] = area
         row.update(cd_dict)
         rows.append(row)
+
     else:
         for key, value in cd_data_dict.items():
             row = {
@@ -171,6 +181,7 @@ for index in index_list:
                 "Time Start": time_start,
                 "Time End": time_end,
             }
+
             for i, cd_matches in enumerate(value):
                 cd_dict["Cd" + str(i + 1)] = cd_matches
             row["Area"] = key
@@ -180,6 +191,8 @@ for index in index_list:
 
 df = pd.DataFrame(rows)
 current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-writer = pd.ExcelWriter(f"data{current_time}.xlsx", engine="xlsxwriter")
+writer = pd.ExcelWriter(f"output/data{current_time}.xlsx", engine="xlsxwriter")
 df.to_excel(writer, sheet_name="Sheet1", index=False)
 writer.close()
+
+print("Task run Successfully!")

@@ -136,5 +136,5 @@ media/
 #.DS_Store
 .DS_Store
 
-#theme
-frest-clean-theme/
+#output
+output/
