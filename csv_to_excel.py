@@ -91,18 +91,25 @@ for index in index_list:
         # alternate Category column
         alternate_category_pattern = r"(\d{6}Z TO \d{6}Z \w+, ALTERNATE)"
         alternate_matches = re.findall(alternate_category_pattern, text)
-        alternate_list = str(alternate_matches)[1:-1].replace("'", "").split(" ")
+        alternate_list = (
+            str(alternate_matches)[1:-1].replace("'", "").replace(",", "").split(" ")
+        )
+
         alternate_category = alternate_list[-1]
+        alternate_effective_start = f"{alternate_list[0][:2]}-{alternate_list[3]}"
+        alternate_effective_end = f"{alternate_list[2][:2]}-{alternate_list[3]}"
+        alternate_time_start = alternate_list[0][2:]
+        alternate_time_end = alternate_list[2][2:]
 
         # create dict for alternate Category data
         if area != "":
             row = {
                 "Authority": authority,
-                "Effective Start": effective_start,
-                "Effective End": effective_end,
+                "Effective Start": alternate_effective_start,
+                "Effective End": alternate_effective_end,
                 "Category": alternate_category,
-                "Time Start": time_start,
-                "Time End": time_end,
+                "Time Start": alternate_time_start,
+                "Time End": alternate_time_end,
             }
             row["Area"] = area
             row.update(cd_dict)
@@ -111,11 +118,11 @@ for index in index_list:
             for key, value in cd_data_dict.items():
                 row = {
                     "Authority": authority,
-                    "Effective Start": effective_start,
-                    "Effective End": effective_end,
+                    "Effective Start": alternate_effective_start,
+                    "Effective End": alternate_effective_end,
                     "Category": alternate_category,
-                    "Time Start": time_start,
-                    "Time End": time_end,
+                    "Time Start": alternate_time_start,
+                    "Time End": alternate_time_end,
                 }
                 for i, cd_matches in enumerate(value):
                     cd_dict["Cd" + str(i + 1)] = cd_matches
