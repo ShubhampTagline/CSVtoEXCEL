@@ -29,7 +29,7 @@ for index in index_list:
         cd_pattern = r"IN AREAS BOUND BY:([\s\S]*?)2\. \w+"
         cd_matches = re.findall(cd_pattern, text)
         cd_matches_str = str(cd_matches)[1:-1].replace(" ", "").replace("n", "")
-        pattern = r"[A-z]\.\d{2}"
+        pattern = r"[A-z]\.\d{2}-\d{2}\.\d{2}"
         characters = re.findall(pattern, cd_matches_str)
 
         for character in characters:
