@@ -6,15 +6,20 @@ import re
 print("Enter CSV path:", end="")
 csv_path = input()
 if not csv_path:
-    csv_path = "input/file1.csv"
+    csv_path = "input/testfile.csv"
 csv_file = pd.read_csv(csv_path)
 
 # Filter data with specific words
 filtered_csv = csv_file[
-    (csv_file["text"].str.contains("ROCKET|SPACE|LAUNCH|LAUNCHING"))
-    | (csv_file["authority"].str.contains("SPACE|LAUNCH|DELTA"))
+    (
+        csv_file["text"].str.contains("ROCKET|SPACE|LAUNCH|LAUNCHING")
+        | csv_file["authority"].str.contains("SPACE|LAUNCH|DELTA")
+    )
+    & ~(
+        csv_file["text"].str.contains("SPACE DEBRIS", case=False, regex=False)
+        | csv_file["authority"].str.contains("SPACE DEBRIS", case=False, regex=False)
+    )
 ]
-
 index_list = filtered_csv.index.tolist()
 
 rows = []
