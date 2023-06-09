@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime
 import re
+import os
 
 # Import CSV file
 print("Enter CSV path:", end="")
@@ -193,6 +194,8 @@ for index in index_list:
             row.update(cd_dict)
             rows.append(row)
 
+output_dir = "output"
+os.makedirs(output_dir, exist_ok=True)
 
 df = pd.DataFrame(rows)
 current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
