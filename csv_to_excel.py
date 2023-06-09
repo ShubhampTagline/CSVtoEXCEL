@@ -7,7 +7,7 @@ import os
 print("Enter CSV path:", end="")
 csv_path = input()
 if not csv_path:
-    csv_path = "input/testfile.csv"
+    csv_path = "input/file_5.csv"
 csv_file = pd.read_csv(csv_path)
 
 # Filter data with specific words
@@ -34,7 +34,7 @@ for index in index_list:
     if "IN AREAS BOUND BY:" in text:
         cd_pattern = r"IN AREAS BOUND BY:([\s\S]*?)2\. \w+"
         cd_matches = re.findall(cd_pattern, text)
-        cd_matches_str = str(cd_matches)[1:-1].replace(" ", "").replace("n", "")
+        cd_matches_str = re.sub(r"\s{2,}", " ", "".join(cd_matches)).strip()
         pattern = r"[A-z]\.\d{2}-\d{2}\.\d{2}"
         characters = re.findall(pattern, cd_matches_str)
 
