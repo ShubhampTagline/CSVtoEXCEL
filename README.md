@@ -5,8 +5,8 @@ python 3
 ## Installation
 
 1. CD CSVtoEXCEL
-
 2. Create venv
+
 ```
 > Mac Os
 python3 -m venv env
@@ -28,7 +28,7 @@ env/Scripts/activate
 4. Install the required packages:
 
 ```
-pip install -r requirements.txt
+pip install -r requirement.txt
 ```
 
 5. Run script:
