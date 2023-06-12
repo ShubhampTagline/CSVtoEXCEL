@@ -35,21 +35,24 @@ for index in index_list:
         cd_pattern = r"IN AREAS BOUND BY:([\s\S]*?)2\. \w+"
         cd_matches = re.findall(cd_pattern, text)
         cd_matches_str = re.sub(r"\s{2,}", " ", "".join(cd_matches)).strip()
-        pattern = r"[A-z]\.\d{2}-\d{2}\.\d{2}"
+        pattern = r"[A-z]\. \d{2}-\d{2}\.\d{2}"
         characters = re.findall(pattern, cd_matches_str)
 
         for character in characters:
             char_data = []
+            character = re.findall(r"[A-Z]\.", character)[0]
             char_pattern = rf"{character}(.*?)(?={chr(ord(character[0]) + 1)}|$)"
+
             char_matches = (
                 str(re.findall(char_pattern, cd_matches_str, re.DOTALL))[1:-1]
                 .replace("'", "")
                 .replace('"', "")
             )
+
             cd_matches_list = [
                 x.strip() for x in char_matches.split("\\") if x.strip() != ""
             ]
-            cd_data_dict[character[0]] = cd_matches_list
+            cd_data_dict[character[0]] = cd_matches_list[0][:-1]
         area = ""
 
     else:
@@ -156,29 +159,15 @@ for index in index_list:
                     "Time Start": alternate_time_start,
                     "Time End": alternate_time_end,
                 }
-
-                for i, cd_matches in enumerate(value):
-                    cd_dict["Cd" + str(i + 1)] = cd_matches
                 row["Area"] = key
+                for count, (key, value) in enumerate(cd_data_dict.items(), start=1):
+                    cd_dict["Cd" + str(count)] = value
                 row.update(cd_dict)
                 rows.append(row)
 
-    # create dict for data
-    if area != "":
-        row = {
-            "Authority": authority,
-            "Effective Start": effective_start,
-            "Effective End": effective_end,
-            "Category": category,
-            "Time Start": time_start,
-            "Time End": time_end,
-        }
-        row["Area"] = area
-        row.update(cd_dict)
-        rows.append(row)
-
     else:
-        for key, value in cd_data_dict.items():
+        # create dict for data
+        if area != "":
             row = {
                 "Authority": authority,
                 "Effective Start": effective_start,
@@ -187,12 +176,26 @@ for index in index_list:
                 "Time Start": time_start,
                 "Time End": time_end,
             }
-
-            for i, cd_matches in enumerate(value):
-                cd_dict["Cd" + str(i + 1)] = cd_matches
-            row["Area"] = key
+            row["Area"] = area
             row.update(cd_dict)
             rows.append(row)
+
+        else:
+            for key, value in cd_data_dict.items():
+                row = {
+                    "Authority": authority,
+                    "Effective Start": effective_start,
+                    "Effective End": effective_end,
+                    "Category": category,
+                    "Time Start": time_start,
+                    "Time End": time_end,
+                }
+
+                row["Area"] = key
+                for count, (key, value) in enumerate(cd_data_dict.items(), start=1):
+                    cd_dict["Cd" + str(count)] = value
+                row.update(cd_dict)
+                rows.append(row)
 
 output_dir = "output"
 os.makedirs(output_dir, exist_ok=True)
